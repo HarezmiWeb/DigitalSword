@@ -1,0 +1,64 @@
+﻿@model DigitalSword.Application.DTOs.CreateMenuItemDto
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Yeni Menü Ekle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header border-secondary">
+                <h3 class="card-title text-white">Yeni Menü Tanımla</h3>
+            </div>
+            <form asp-action="Create" method="post">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white required">Menü Başlığı</label>
+                            <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Oyun İçi Ürünler" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white required">Yönlendirme Linki (URL)</label>
+                            <input asp-for="Url" class="form-control bg-dark text-white border-secondary" placeholder="Örn: /Home/Index veya #" required />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white">Üst Menü</label>
+                            <select asp-for="ParentId" class="form-select bg-dark text-white border-secondary">
+                                <option value="">-- Ana Menü Olarak Tanımla --</option>
+                                @if (ViewBag.ParentMenus != null)
+                                {
+                                    foreach (var p in ViewBag.ParentMenus)
+                                    {
+                                        <option value="@p.Id">@p.Title</option>
+                                    }
+                                }
+                            </select>
+                            <small class="text-secondary">Alt menü yapmak istiyorsanız bağlı olacağı üst başlığı seçin.</small>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-white required">Sıralama</label>
+                            <input asp-for="Order" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-white">İkon (Tabler)</label>
+                            <input asp-for="Icon" class="form-control bg-dark text-white border-secondary" placeholder="ti ti-home" />
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mt-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                        <label class="form-check-label text-white" asp-for="IsActive">Menü Vitrinde Aktif Olsun</label>
+                    </div>
+                </div>
+                <div class="card-footer border-secondary d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+                    <button type="submit" class="btn btn-warning">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

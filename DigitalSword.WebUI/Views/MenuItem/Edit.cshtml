@@ -1,0 +1,71 @@
+﻿@model DigitalSword.Application.DTOs.UpdateMenuItemDto
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Menü Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header border-secondary">
+                <h3 class="card-title text-white">Menü Düzenle: @Model.Title</h3>
+            </div>
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white required">Menü Başlığı</label>
+                            <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Home veya Oyunlar" required />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white required">Yönlendirme Linki (URL)</label>
+                            <input asp-for="Url" class="form-control bg-dark text-white border-secondary" placeholder="Örn: / veya /Home/Index" required />
+                            <span asp-validation-for="Url" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white">Üst Menü (Parent)</label>
+                            <select asp-for="ParentId" class="form-select bg-dark text-white border-secondary">
+                                <option value="">-- Ana Menü Olarak Tanımla --</option>
+                                @if (ViewBag.ParentMenus != null)
+                                {
+                                    foreach (var p in ViewBag.ParentMenus)
+                                    {
+                                        <option value="@p.Id">@p.Title</option>
+                                    }
+                                }
+                            </select>
+                            <small class="text-secondary">Bu menüyü bir başlığın altına almak istiyorsanız ana menüyü seçin.</small>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-white required">Sıralama</label>
+                            <input asp-for="Order" type="number" class="form-control bg-dark text-white border-secondary" />
+                            <span asp-validation-for="Order" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label text-white">İkon (Tabler)</label>
+                            <input asp-for="Icon" class="form-control bg-dark text-white border-secondary" placeholder="ti ti-home" />
+                            <span asp-validation-for="Icon" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mt-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label class="form-check-label text-white" asp-for="IsActive">Menü Vitrinde Aktif Olsun</label>
+                    </div>
+                </div>
+
+                <div class="card-footer border-secondary d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+                    <button type="submit" class="btn btn-warning">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

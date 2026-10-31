@@ -1,0 +1,103 @@
+﻿@model DigitalSword.Application.DTOs.LoginDto
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Giriş Yap - DigitalSword";
+}
+
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tabler Core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
+    <style>
+            body {
+                background-color: #0b0f19;
+                color: #e2e8f0;
+            }
+
+            .login-card {
+                background-color: #161b22 !important;
+                border: 1px solid #30363d !important;
+                border-radius: 12px;
+            }
+    </style>
+</head>
+<body class="d-flex flex-column justify-content-center min-vh-100 py-4">
+    <div class="container container-tight">
+        <!-- Logo -->
+        <div class="text-center mb-4">
+            <a href="/" class="navbar-brand text-decoration-none fw-bold fs-2 text-warning">
+                ⚔️ DigitalSword
+            </a>
+            <div class="text-secondary small mt-1">Dijital Lisans ve E-Pin Platformu</div>
+        </div>
+
+        <div class="card login-card shadow-lg">
+            <div class="card-body p-4 p-md-5">
+                <h3 class="card-title text-white text-center mb-4 fw-bold">Hesabınıza Giriş Yapın</h3>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success bg-success-lt mb-3">
+                        <i class="ti ti-check me-1"></i> @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger-lt mb-3"></div>
+
+                    <!-- E-Posta / Kullanıcı Adı -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">E-Posta veya Kullanıcı Adı</label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <i class="ti ti-user text-secondary"></i>
+                            </span>
+                            <input asp-for="EmailOrUserName" class="form-control bg-dark text-white border-secondary" placeholder="admin veya e-posta" required autofocus />
+                        </div>
+                        <span asp-validation-for="EmailOrUserName" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Şifre -->
+                    <div class="mb-4">
+                        <label class="form-label text-white">Şifre</label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <i class="ti ti-lock text-secondary"></i>
+                            </span>
+                            <input asp-for="Password" type="password" class="form-control bg-dark text-white border-secondary" placeholder="••••••••" required />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Giriş Butonu -->
+                    <button type="submit" class="btn btn-warning w-100 fw-bold py-2">
+                        <i class="ti ti-login me-1"></i> Giriş Yap
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-footer border-secondary text-center py-3 bg-transparent">
+                <span class="text-secondary">Hesabınız yok mu?</span>
+                <a asp-action="Register" class="text-warning text-decoration-none fw-bold ms-1">Hemen Kayıt Ol</a>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="text-secondary small text-decoration-none">
+                <i class="ti ti-arrow-left me-1"></i> Vitrine Geri Dön
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+</body>
+</html>

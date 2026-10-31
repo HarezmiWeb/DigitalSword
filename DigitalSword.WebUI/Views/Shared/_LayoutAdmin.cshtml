@@ -1,0 +1,91 @@
+﻿<!doctype html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"] - DigitalSword Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
+    <style>
+            .navbar-vertical .navbar-brand {
+                padding: 1rem;
+                font-size: 1.15rem;
+            }
+
+            .page-wrapper {
+                min-height: 100vh;
+            }
+    </style>
+</head>
+<body class="layout-fluid">
+    <div class="page">
+        <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <h1 class="navbar-brand navbar-brand-autodark">
+                    <a asp-controller="Product" asp-action="Index" class="text-decoration-none text-white fw-bold">
+                         DigitalSword Admin
+                    </a>
+                </h1>
+
+                <div class="collapse navbar-collapse" id="sidebar-menu">
+                    <ul class="navbar-nav pt-lg-3">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Product" asp-action="Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-device-gamepad-2 fs-2 text-warning"></i>
+                                </span>
+                                <span class="nav-link-title">Ürünler (Oyunlar)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="MenuItem" asp-action="Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-menu-2"></i></span>
+                                <span class="nav-link-title">Menü Yönetimi</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Publisher" asp-action="Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-building-store fs-2 text-success"></i>
+                                </span>
+                                <span class="nav-link-title">Yayıncılar</span>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" asp-controller="Home" asp-action="Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-arrow-back-up fs-2"></i>
+                                </span>
+                                <span class="nav-link-title">Mağazaya Geri Dön</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+        <div class="page-wrapper">
+            <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none border-bottom">
+                <div class="container-xl justify-content-end">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-danger py-2 px-3 fs-5">
+                          @User.Identity?.Name (Admin)
+                        </span>
+                        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger btn-sm">Çıkış Yap</a>
+                    </div>
+                </div>
+            </header>
+            <div class="page-body">
+                <div class="container-xl">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

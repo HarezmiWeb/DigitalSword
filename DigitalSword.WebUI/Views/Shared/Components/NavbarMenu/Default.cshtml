@@ -1,0 +1,48 @@
+﻿@model IEnumerable<DigitalSword.Application.DTOs.MenuItemResponseDto>
+
+<ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-md-4">
+    @if (Model != null)
+    {
+        foreach (var item in Model)
+        {
+            if (item.SubMenus != null && item.SubMenus.Any())
+            {
+                <!-- AÇILIR ALT MENÜ (DROPDOWN) -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                        @if (!string.IsNullOrEmpty(item.Icon))
+                        {
+                            <i class="@item.Icon me-1"></i>
+                        }
+                        @item.Title
+                    </a>
+                    <div class="dropdown-menu bg-dark border-secondary shadow-lg">
+                        @foreach (var sub in item.SubMenus)
+                        {
+                            <a class="dropdown-item text-white hover-warning" href="@sub.Url">
+                                @if (!string.IsNullOrEmpty(sub.Icon))
+                                {
+                                    <i class="@sub.Icon me-2 text-warning"></i>
+                                }
+                                @sub.Title
+                            </a>
+                        }
+                    </div>
+                </li>
+            }
+            else
+            {
+                <!-- DÜZ LİNK -->
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="@item.Url">
+                        @if (!string.IsNullOrEmpty(item.Icon))
+                        {
+                            <i class="@item.Icon me-1"></i>
+                        }
+                        @item.Title
+                    </a>
+                </li>
+            }
+        }
+    }
+</ul>

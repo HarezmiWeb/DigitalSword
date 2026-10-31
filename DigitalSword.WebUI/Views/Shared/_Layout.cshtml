@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"] - DigitalSword</title>
+
+    <!-- Tabler Core CSS (Karanlık Tema Destekli) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" />
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
+    <style>
+            body {
+                background-color: #0b0f19;
+                color: #e2e8f0;
+            }
+
+            .navbar-store {
+                background-color: #111827 !important;
+                border-bottom: 1px solid #1f2937;
+            }
+
+            .footer-store {
+                background-color: #111827;
+                border-top: 1px solid #1f2937;
+            }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- MAĞAZA ÜST BAR (NAVBAR) -->
+    <header class="navbar navbar-expand-md navbar-dark navbar-store sticky-top">
+        <div class="container-xl">
+            <!-- LOGO -->
+            <a class="navbar-brand text-decoration-none fw-bold fs-3 text-warning" asp-controller="Home" asp-action="Index">
+                ⚔️ DigitalSword
+            </a>
+
+            <!-- MOBİL MENÜ BUTONU (TOGGLER) -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- MENÜ VE SAĞ ALAN KAPSAYICISI -->
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <!-- DİNAMİK MENÜ BİLEŞENİ (Home, Oyunlar, Oyun İçi Ürünler) -->
+                @await Component.InvokeAsync("NavbarMenu")
+
+                <!-- SAĞ ALAN (SEPET / GİRİŞ / PROFİL / ADMİN) -->
+                <div class="d-flex align-items-center gap-2 ms-auto mt-3 mt-md-0">
+                    <!-- SEPET BUTONU -->
+                    <a href="#" class="btn btn-dark border-secondary position-relative me-2">
+                        <i class="ti ti-shopping-cart fs-3 text-warning"></i>
+                        <span class="badge bg-danger position-absolute top-0 end-0 translate-middle rounded-pill" id="cart-count">
+                            0
+                        </span>
+                    </a>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Product" asp-action="Index" class="btn btn-outline-warning btn-sm">
+                                <i class="ti ti-dashboard me-1"></i> Admin Paneli
+                            </a>
+                        }
+
+                        <span class="text-white small ms-2">👤 @User.Identity.Name</span>
+                        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger btn-sm">
+                            Çıkış
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-warning btn-sm">
+                            <i class="ti ti-login me-1"></i> Giriş Yap
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SAYFA İÇERİĞİ -->
+    <main class="flex-grow-1 py-4">
+        <div class="container-xl">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer-store text-muted py-4 mt-auto">
+        <div class="container-xl text-center">
+            <div class="fw-bold text-white mb-1">⚔️ DigitalSword - E-Pin & Dijital Oyun Mağazası</div>
+            <div class="small">© 2026 Tüm Hakları Saklıdır. Güvenli Ödeme ve Anında Teslimat.</div>
+        </div>
+    </footer>
+
+    <!-- Tabler Core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

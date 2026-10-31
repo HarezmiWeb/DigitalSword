@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="../DigitalSword.Application/DigitalSword.Application.csproj" />
+  <Project Path="../DigitalSword.Domain/DigitalSword.Domain.csproj" />
+  <Project Path="../DigitalSword.Persistence/DigitalSword.Persistence.csproj" />
+  <Project Path="../DigitalSword.WebUI/DigitalSword.WebUI.csproj" />
+  <Project Path="DigitalSword.API.csproj" />
+</Solution>

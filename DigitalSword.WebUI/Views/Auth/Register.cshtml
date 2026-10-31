@@ -1,0 +1,48 @@
+﻿@model DigitalSword.Application.DTOs.RegisterDto
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm border-0 col-md-5 mx-auto">
+        <div class="card-header bg-dark text-white text-center py-3">
+            <h4 class="mb-0 fw-bold">Yeni Hesap Oluştur</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ad Soyad</label>
+                    <input asp-for="FullName" class="form-control" required />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Kullanıcı Adı</label>
+                    <input asp-for="UserName" class="form-control" required />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">E-Posta</label>
+                    <input asp-for="Email" type="email" class="form-control" required />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Şifre</label>
+                    <input asp-for="Password" type="password" class="form-control" required />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 fw-bold py-2 mt-2">Kayıt Ol</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <span class="text-muted">Zaten hesabın var mı?</span>
+                <a asp-action="Login" class="text-decoration-none fw-bold">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>

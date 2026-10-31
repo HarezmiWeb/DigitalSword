@@ -1,0 +1,110 @@
+﻿@model DigitalSword.WebUI.Models.DTO.ProductResponseDto
+
+@{
+    ViewData["Title"] = $"{Model.Title} - Detaylar";
+}
+
+<style>
+    .game-hero-img {
+        max-height: 480px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #374151;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .badge-pill-soft {
+        background-color: rgba(245, 159, 0, 0.15);
+        color: #f59f00;
+        border: 1px solid rgba(245, 159, 0, 0.3);
+    }
+</style>
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="ti ti-arrow-left me-1"></i> Vitrine Geri Dön
+    </a>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-lg-7">
+        <div class="position-relative">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://placehold.co/800x450/1e293b/white?text=DigitalSword" : Model.ImageUrl)"
+                 alt="@Model.Title"
+                 class="game-hero-img mb-3" />
+        </div>
+
+        
+        <div class="card bg-dark border-secondary p-4 mt-3">
+            <h4 class="text-white fw-bold mb-3">
+                <i class="ti ti-file-description text-warning me-2"></i> Oyun Hakkında
+            </h4>
+            <div class="text-muted leading-relaxed" style="white-space: pre-line;">
+                @(string.IsNullOrEmpty(Model.Description) ? "Bu oyun için henüz detaylı bir açıklama metni girilmemiş." : Model.Description)
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="col-lg-5">
+        <div class="card bg-dark border-secondary p-4 sticky-top" style="top: 80px;">
+            <div class="mb-2">
+                <span class="badge badge-pill-soft px-3 py-2 fw-bold">
+                    <i class="ti ti-key me-1"></i> Dijital Lisans Anahtarı
+                </span>
+                <span class="badge bg-secondary-lt text-white ms-1">
+                    @Model.ProductType
+                </span>
+            </div>
+
+            <h1 class="text-white fw-bold my-3">@Model.Title</h1>
+
+            <div class="d-flex align-items-baseline gap-3 mb-4">
+                <div class="fs-1 fw-bold text-warning">@Model.Price.ToString("C2")</div>
+                <div class="text-muted small">KDV Dahil</div>
+            </div>
+
+            <hr class="border-secondary border-opacity-50 my-3" />
+
+            
+            <ul class="list-unstyled text-secondary small mb-4">
+                <li class="d-flex align-items-center mb-2">
+                    <i class="ti ti-bolt text-warning fs-3 me-2"></i>
+                    <span><strong>Anında Teslimat:</strong> Satın alma sonrası dijital key anında hesabınıza tanımlanır.</span>
+                </li>
+                <li class="d-flex align-items-center mb-2">
+                    <i class="ti ti-shield-check text-success fs-3 me-2"></i>
+                    <span><strong>Resmi Lisans:</strong> %100 orijinal ve global aktivasyon garantili.</span>
+                </li>
+                <li class="d-flex align-items-center">
+                    <i class="ti ti-box text-info fs-3 me-2"></i>
+                    <span><strong>Kalan Stok:</strong> @(Model.Stock > 0 ? $"{Model.Stock} Adet Mevcut" : "Tükendi")</span>
+                </li>
+            </ul>
+
+            
+            @if (Model.Stock > 0)
+            {
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning btn-lg fw-bold" onclick="alert('Sepete eklendi: @Model.Title')">
+                        <i class="ti ti-shopping-cart-plus me-2"></i> Sepete Ekle
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Alışverişe Devam Et
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger bg-danger-lt border-danger text-center" role="alert">
+                    <i class="ti ti-alert-triangle me-1"></i> Bu ürün şu anda stokta tükenmiştir.
+                </div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Diğer Oyunlara Göz At
+                </a>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../DigitalSword.Application/DigitalSword.Application.csproj" />
+  <Project Path="../DigitalSword.Domain/DigitalSword.Domain.csproj" />
+  <Project Path="DigitalSword.WebUI.csproj" />
+</Solution>

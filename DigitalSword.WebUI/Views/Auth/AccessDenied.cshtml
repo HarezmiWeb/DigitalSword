@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Erişim Reddedildi";
+}
+
+<div class="container text-center mt-5">
+    <div class="alert alert-danger py-5 shadow-sm">
+        <h1 class="display-4 fw-bold"> Yetkisiz Erişim (403)</h1>
+        <p class="lead mt-3">Bu yönetim sayfasına yalnızca <strong>Admin</strong> yetkisine sahip kullanıcılar erişebilir.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-dark mt-3">Mağazaya Geri Dön</a>
+    </div>
+</div>

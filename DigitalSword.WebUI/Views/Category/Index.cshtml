@@ -1,0 +1,74 @@
+﻿@model IEnumerable<DigitalSword.Application.DTOs.CategoryResponseDto>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Kategori Yönetimi";
+}
+
+<div class="page-header d-print-none mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="page-title text-white">
+                <i class="ti ti-category text-primary me-2"></i> Kategori Yönetimi
+            </h2>
+            <div class="text-muted mt-1">Oyunların ve dijital ürünlerin sınıflandırıldığı kategoriler.</div>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+            <a asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
+                <i class="ti ti-plus me-1"></i> Yeni Kategori Ekle
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-striped table-hover text-white mb-0">
+            <thead>
+                <tr>
+                    <th class="w-1 text-muted">ID</th>
+                    <th>Kategori Adı</th>
+                    <th>Açıklama</th>
+                    <th class="w-1 text-end">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-muted">@item.Id</td>
+                            <td class="fw-bold">
+                                <span class="badge bg-primary-lt me-2">
+                                    <i class="ti ti-tag"></i>
+                                </span>
+                                @item.Name
+                            </td>
+                            <td class="text-secondary">@item.Description</td>
+                            <td class="text-end">
+                                <div class="btn-list justify-content-end flex-nowrap">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm" title="Düzenle">
+                                        <i class="ti ti-edit"></i> Düzenle
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');" title="Sil">
+                                        <i class="ti ti-trash"></i> Sil
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="ti ti-inbox fs-1 d-block mb-2"></i>
+                            Henüz kayıtlı bir kategori bulunmuyor.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+﻿@model List<DigitalSword.Application.DTOs.PublisherResponseDto>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Yayıncılar";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2> Yayıncı / Firma Yönetimi</h2>
+        <a asp-action="Create" class="btn btn-success">+ Yeni Yayıncı Ekle</a>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 80px;">ID</th>
+                <th>Yayıncı Adı</th>
+                <th>Açıklama</th>
+                <th style="width: 180px;" class="text-center">İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || !Model.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">Kayıtlı yayıncı bulunamadı.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td><strong>@item.Name</strong></td>
+                        <td>@item.Description</td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                    Düzenle
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('@item.Name firmasını silmek istediğinize emin misiniz?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary">← Ürün Yönetimine Dön</a>
+    </div>
+</div>

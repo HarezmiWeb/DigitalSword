@@ -1,0 +1,94 @@
+﻿@model IEnumerable<DigitalSword.Application.DTOs.MenuItemResponseDto>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Menü Yönetimi";
+}
+
+<div class="page-header d-print-none mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="page-title text-white">
+                <i class="ti ti-menu-2 text-warning me-2"></i> Vitrin Menü Yönetimi
+            </h2>
+            <div class="text-muted mt-1">Üst navigasyon çubuğundaki ana ve alt menüleri buradan düzenleyebilirsiniz.</div>
+        </div>
+        <div class="col-auto ms-auto">
+            <a asp-action="Create" class="btn btn-warning">
+                <i class="ti ti-plus me-1"></i> Yeni Menü Ekle
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary">
+    <div class="table-responsive">
+        <table class="table table-vcenter table-dark card-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Sıra</th>
+                    <th>Menü Başlığı</th>
+                    <th>Hedef URL</th>
+                    <th>Üst Menü (Parent)</th>
+                    <th>İkon</th>
+                    <th>Durum</th>
+                    <th class="text-end">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-warning fw-bold">#@item.Order</td>
+                            <td class="fw-bold text-white">
+                                @if (item.ParentTitle != "-")
+                                {
+                                    <span class="text-secondary me-1">↳</span>
+                                }
+                                @item.Title
+                            </td>
+                            <td class="text-muted small"><code>@item.Url</code></td>
+                            <td>
+                                @if (item.ParentTitle == "-")
+                                {
+                                    <span class="badge bg-primary-lt">Ana Menü</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-lt">@item.ParentTitle</span>
+                                }
+                            </td>
+                            <td><i class="@item.Icon fs-3"></i></td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge bg-success-lt">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-lt">Pasif</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm me-1">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bu menüyü silmek istediğinize emin misiniz?');">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">Kayıtlı menü bulunamadı.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

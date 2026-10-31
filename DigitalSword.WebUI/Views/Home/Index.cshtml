@@ -1,0 +1,172 @@
+﻿@model IEnumerable<DigitalSword.WebUI.Models.DTO.ProductResponseDto>
+
+@{
+    ViewData["Title"] = "Vitrin - Popüler Oyunlar";
+}
+
+<style>
+    /* Sabit ve hizalı kart yapısı */
+    .game-card {
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #f59f00 !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+    /* Görsel Konteyneri: Sabit yükseklik ve taşmayı engelleme */
+    .game-thumb-wrapper {
+        position: relative;
+        width: 100%;
+        height: 220px; /* Tüm kartlarda standart görsel yüksekliği */
+        background-color: #0b0f19;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Arka Plandaki Bulanık Katman (Boşlukları estetik doldurur) */
+    .game-thumb-blur {
+        position: absolute;
+        inset: -15px;
+        background-size: cover;
+        background-position: center;
+        filter: blur(20px) brightness(0.3);
+        transform: scale(1.15);
+        z-index: 1;
+    }
+
+    /* Öndeki Asıl Resim (Asla kesilmez, kutuya tam sığar) */
+    .game-thumb-img {
+        position: relative;
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        z-index: 2;
+        transition: transform 0.3s ease;
+        border-radius: 4px;
+    }
+
+    .game-card:hover .game-thumb-img {
+        transform: scale(1.05);
+    }
+</style>
+
+<!-- HERO / KAMPANYA BANNER -->
+<div class="card bg-dark border-secondary p-4 p-md-5 mb-5 shadow" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border-radius: 12px;">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <span class="badge bg-warning text-dark px-3 py-2 fw-bold text-uppercase mb-3">
+                <i class="ti ti-flame me-1"></i> Haftanın Fırsatları
+            </span>
+            <h1 class="display-6 fw-bold text-white mb-2">En Popüler Oyunlar En Uygun Fiyatlarla</h1>
+            <p class="text-secondary fs-5 mb-4">Anında teslimat dijital lisans anahtarlarıyla maceraya kesintisiz devam et.</p>
+            <a href="#games-grid" class="btn btn-warning btn-lg fw-bold px-4">
+                <i class="ti ti-flame me-1"></i> Oyunları Keşfet
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ARAMA VE BAŞLIK ÇUBUĞU -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4" id="games-grid">
+    <div class="d-flex align-items-center gap-2">
+        <i class="ti ti-device-gamepad-2 text-warning fs-2"></i>
+        <h3 class="text-white mb-0 fw-bold">Mağazadaki Oyunlar</h3>
+    </div>
+
+    <!-- Arama Kutusu -->
+    <form asp-action="Index" method="get" class="d-flex gap-2" style="max-width: 380px; width: 100%;">
+        <div class="input-icon w-100">
+            <span class="input-icon-addon">
+                <i class="ti ti-search text-secondary"></i>
+            </span>
+            <input type="text" name="search" value="@Context.Request.Query["search"]" class="form-control bg-dark text-white border-secondary" placeholder="Oyun ara..." />
+        </div>
+        <button type="submit" class="btn btn-warning">
+            <i class="ti ti-search"></i>
+        </button>
+    </form>
+</div>
+
+<!-- OYUN KARTLARI GRİDİ -->
+<div class="row g-4">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var game in Model)
+        {
+            <div class="col-sm-6 col-lg-4 col-xl-4">
+                <div class="game-card">
+                    <!-- KART GÖRSEL ALANI -->
+                    <div class="game-thumb-wrapper">
+                        <a asp-action="Detail" asp-route-id="@game.Id" class="w-100 h-100 d-flex align-items-center justify-content-center text-decoration-none">
+                            <!-- Arka plan bulanıklığı -->
+                            <div class="game-thumb-blur" style="background-image: url('@(string.IsNullOrEmpty(game.ImageUrl) ? "https://placehold.co/600x400/1e293b/white?text=DigitalSword" : game.ImageUrl)');"></div>
+
+                            <!-- Öndeki net görsel -->
+                            <img src="@(string.IsNullOrEmpty(game.ImageUrl) ? "https://placehold.co/600x400/1e293b/white?text=DigitalSword" : game.ImageUrl)"
+                                 alt="@game.Title"
+                                 class="game-thumb-img" />
+                        </a>
+                    </div>
+
+                    <!-- KART BİLGİ ALANI -->
+                    <div class="game-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary-lt text-white" style="font-size: 0.75rem;">
+                                @(game.ProductType == 1 ? "Dijital Lisans" : "E-Pin")
+                            </span>
+                            <span class="text-secondary small">
+                                <i class="ti ti-box me-1"></i>@(game.Stock > 0 ? $"{game.Stock} Adet" : "Tükendi")
+                            </span>
+                        </div>
+
+                        <!-- Oyun Başlığı -->
+                        <h4 class="text-truncate mb-2" title="@game.Title">
+                            <a asp-action="Detail" asp-route-id="@game.Id" class="text-white text-decoration-none fw-bold">
+                                @game.Title
+                            </a>
+                        </h4>
+
+                        <!-- Açıklama Özeti -->
+                        <p class="game-desc-clamp mb-4">
+                            @(string.IsNullOrEmpty(game.Description) ? "Detaylı açıklama için tıklayın..." : game.Description)
+                        </p>
+
+                        <!-- Fiyat ve Satın Al / İncele Butonu -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary mt-auto">
+                            <div>
+                                <span class="text-secondary d-block" style="font-size: 0.75rem;">Fiyat</span>
+                                <span class="fs-3 fw-bold text-warning">@game.Price.ToString("C2")</span>
+                            </div>
+
+                            <a asp-action="Detail" asp-route-id="@game.Id" class="btn btn-warning btn-sm px-3 fw-bold">
+                                <i class="ti ti-shopping-cart-plus me-1"></i> İncele & Satın Al
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 py-5 text-center text-muted">
+            <i class="ti ti-mood-empty fs-1 text-secondary mb-2 d-block"></i>
+            <h4 class="text-white">Şu anda listelenecek oyun bulunamadı.</h4>
+            <p>Admin panelinden yeni oyunlar ekleyerek mağazayı doldurabilirsiniz.</p>
+        </div>
+    }
+</div>
