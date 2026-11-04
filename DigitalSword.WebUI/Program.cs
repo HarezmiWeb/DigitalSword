@@ -33,6 +33,7 @@ builder.Services.AddHttpClient("DigitalSwordApi", client =>
 builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("DigitalSwordApi"));
 
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
