@@ -1,11 +1,8 @@
 ﻿using DigitalSword.Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace DigitalSword.WebUI.Controllers;
-
-[Authorize(Roles = "Admin")]
 public class ProductController : Controller
 {
     private readonly HttpClient _httpClient;
@@ -39,7 +36,7 @@ public class ProductController : Controller
             ViewBag.Publishers = new List<PublisherResponseDto>();
         }
     }
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Index(string? type = null)
     {
@@ -66,20 +63,41 @@ public class ProductController : Controller
             ViewBag.CurrentType = type;
             ViewBag.PageTitle = type.ToLower() switch
             {
-                "game" or "gamekey" => "Oyun Yönetimi",
-                "epin" or "e_pin" => "E-Pin & Paketler Yönetimi",
-                "ingameitem" => "Oyun İçi Ürünler Yönetimi",
-                _ => "Ürün Yönetimi"
+                "game" or "gamekey" => "Oyunlar",
+                "epin" or "e_pin" => "E-Pin & Paketler",
+                "ingameitem" => "Oyun İçi Ürünler",
+                _ => "Tüm Ürünler"
             };
         }
         else
         {
-            ViewBag.PageTitle = "Tüm Ürünler Yönetimi";
+            ViewBag.PageTitle = "Tüm Ürünler";
         }
 
         return View(products);
     }
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> Epin(string? category = null)
+    {
+        var url = "Products?type=Epin";
+        if (!string.IsNullOrWhiteSpace(category) && category.ToLower() != "tümü")
+        {
+            url += $"&category={category}";
+        }
 
+        var response = await _httpClient.GetAsync(url);
+        var products = new List<ProductResponseDto>();
+
+        if (response.IsSuccessStatusCode)
+        {
+            products = await response.Content.ReadFromJsonAsync<List<ProductResponseDto>>() ?? new List<ProductResponseDto>();
+        }
+
+        ViewBag.SelectedCategory = category ?? "Tümü";
+        return View(products);
+    }
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Create(string? type = null)
     {
@@ -88,7 +106,9 @@ public class ProductController : Controller
         return View();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateProductDto dto, string? type = null)
     {
         if (!ModelState.IsValid)
@@ -111,7 +131,9 @@ public class ProductController : Controller
         return View(dto);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, string? returnType = null)
     {
         var response = await _httpClient.DeleteAsync($"Products/{id}");
@@ -125,6 +147,7 @@ public class ProductController : Controller
         return RedirectToAction(nameof(Index), new { type = returnType });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -158,7 +181,9 @@ public class ProductController : Controller
         return View(updateDto);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(UpdateProductDto dto)
     {
         if (!ModelState.IsValid)
@@ -186,26 +211,5 @@ public class ProductController : Controller
 
         await LoadCategoriesAndPublishersAsync();
         return View(dto);
-    }
-    [AllowAnonymous] 
-    [HttpGet]
-    public async Task<IActionResult> Epin(string? category = null)
-    {
-        var url = "api/Products?type=Epin";
-        if (!string.IsNullOrWhiteSpace(category) && category.ToLower() != "tümü")
-        {
-            url += $"&category={category}";
-        }
-
-        var response = await _httpClient.GetAsync(url);
-        var products = new List<ProductResponseDto>();
-
-        if (response.IsSuccessStatusCode)
-        {
-            products = await response.Content.ReadFromJsonAsync<List<ProductResponseDto>>() ?? new List<ProductResponseDto>();
-        }
-
-        ViewBag.SelectedCategory = category ?? "Tümü";
-        return View(products);
     }
 }

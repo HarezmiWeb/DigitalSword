@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalSword.WebUI.Controllers
 {
-    [Authorize(Roles = "Admin")]
     public class CategoryController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -34,18 +33,15 @@ namespace DigitalSword.WebUI.Controllers
 
             return View(categories);
         }
-
-        // Admin Paneli Kategori Ekleme Sayfası (GET)
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
-
-        // Admin Paneli Kategori Ekleme İşlemi (POST)
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateCategoryDto dto)
         {
             if (!ModelState.IsValid)
@@ -63,8 +59,6 @@ namespace DigitalSword.WebUI.Controllers
             ModelState.AddModelError(string.Empty, "Kategori eklenirken bir hata oluştu.");
             return View(dto);
         }
-
-        // Admin Paneli Kategori Düzenleme Sayfası (GET) -> /Category/Edit/{id}
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
@@ -82,7 +76,6 @@ namespace DigitalSword.WebUI.Controllers
                 return NotFound();
             }
 
-            // Constructor parametreleri ile nesne oluşturma:
             var updateDto = new UpdateCategoryDto(
                 category.Id,
                 category.Name,
@@ -91,10 +84,9 @@ namespace DigitalSword.WebUI.Controllers
 
             return View(updateDto);
         }
-
-        // Admin Paneli Kategori Düzenleme İşlemi (POST)
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UpdateCategoryDto dto)
         {
             if (!ModelState.IsValid)
@@ -114,22 +106,19 @@ namespace DigitalSword.WebUI.Controllers
             ModelState.AddModelError(string.Empty, $"Kategori güncellenirken bir hata oluştu: {errorDetails}");
             return View(dto);
         }
-
-        // Admin Paneli Kategori Silme İşlemi (POST)
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _httpClient.DeleteAsync($"Categories/{id}");
             return RedirectToAction(nameof(Index));
         }
 
-        // Vitrin Tarafı Slug Tabanlı Kategori Detay / Filtreleme
-        // Vitrin Tarafı Slug Tabanlı Kategori Detay / Filtreleme
+        [AllowAnonymous]
         [HttpGet("kategori/{slug}")]
         public async Task<IActionResult> Detail(string slug, int? subId = null)
         {
-            // 1. Kategorileri Getir
             var catResponse = await _httpClient.GetAsync("Categories");
             var allCategories = new List<CategoryResponseDto>();
 
@@ -160,15 +149,12 @@ namespace DigitalSword.WebUI.Controllers
                 allProducts = await prodResponse.Content.ReadFromJsonAsync<List<ProductResponseDto>>()
                               ?? new List<ProductResponseDto>();
             }
-
-            // 3. Ana Bölüm Filtresi (E-Pin, Oyunlar, Hediye Kartları)
             List<ProductResponseDto> sectionProducts;
             string pageTitle = "Katalog";
 
             if (targetSlug.Contains("epin") || targetSlug.Contains("oyun-ici"))
             {
                 pageTitle = "EPIN & OYUN İÇİ ÜRÜNLER";
-                // Sadece E-Pin (2) ve Oyun İçi Ürün (3) olanları al
                 sectionProducts = allProducts.Where(p =>
                     p.ProductType != null && (
                         p.ProductType.ToString().Equals("Epin", StringComparison.OrdinalIgnoreCase) ||
@@ -181,7 +167,6 @@ namespace DigitalSword.WebUI.Controllers
             else if (targetSlug.Contains("hediye") || targetSlug.Contains("gift"))
             {
                 pageTitle = "HEDİYE KARTLARI";
-                // Hediye kartlarını al
                 sectionProducts = allProducts.Where(p =>
                     p.Title.Contains("Kart", StringComparison.OrdinalIgnoreCase) ||
                     p.Title.Contains("Google Play", StringComparison.OrdinalIgnoreCase) ||
@@ -192,7 +177,6 @@ namespace DigitalSword.WebUI.Controllers
             else if (targetSlug.Contains("oyun") || targetSlug.Contains("game"))
             {
                 pageTitle = "DİJİTAL OYUNLAR";
-                // Sadece Oyun (1) ve DLC (4) olanları al
                 sectionProducts = allProducts.Where(p =>
                     p.ProductType != null && (
                         p.ProductType.ToString().Equals("Game", StringComparison.OrdinalIgnoreCase) ||
@@ -205,7 +189,6 @@ namespace DigitalSword.WebUI.Controllers
             }
             else
             {
-                // Doğrudan veritabanındaki tek bir kategori ismiyle gelinmişse
                 var matchedCategory = allCategories.FirstOrDefault(c => Normalize(c.Name) == targetSlug);
                 if (matchedCategory != null)
                 {
@@ -217,13 +200,8 @@ namespace DigitalSword.WebUI.Controllers
                     sectionProducts = allProducts;
                 }
             }
-
-            // 4. Hap Butonları (Pills) Filtrele:
-            // Sadece bu sayfadaki ürünlerin ait olduğu kategorileri buton olarak göster
             var relevantCategoryIds = sectionProducts.Select(p => p.CategoryId).Distinct().ToList();
             var relevantCategories = allCategories.Where(c => relevantCategoryIds.Contains(c.Id)).ToList();
-
-            // 5. Kullanıcı üstteki butonlardan bir alt kategori seçtiyse (subId filtresi)
             List<ProductResponseDto> finalProducts = sectionProducts;
             if (subId.HasValue && subId.Value > 0)
             {

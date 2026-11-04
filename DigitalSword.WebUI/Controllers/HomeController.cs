@@ -66,7 +66,6 @@ namespace DigitalSword.WebUI.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                // Doğrudan WebUI'ın beklediği DTO türüne deserialize ediyoruz:
                 var product = await response.Content.ReadFromJsonAsync<DigitalSword.WebUI.Models.DTO.ProductResponseDto>();
                 if (product != null)
                 {
