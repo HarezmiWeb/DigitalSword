@@ -38,4 +38,4 @@ Bu proje, web geliştirme alanında uygulama deneyimi kazanmak amacıyla gelişt
 
 👩‍💻 Geliştirici
 
-Kişisel web geliştirme projesi olarak hazırlanmıştır.
+Kişisel web geliştirme projesi olarak hazırlanmıştır. (Ali Haydar Çiğ & Nazlı Sıla Solum)
