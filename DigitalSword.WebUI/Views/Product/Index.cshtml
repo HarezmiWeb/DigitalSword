@@ -2,13 +2,16 @@
 
 @{
     Layout = "_LayoutAdmin";
-    ViewData["Title"] = "Ürün Yönetimi";
+    // Controller'dan gelen dinamik başlık varsa onu kullan, yoksa varsayılanı yaz
+    ViewData["Title"] = ViewBag.PageTitle ?? "Ürün Yönetimi";
+    string currentType = ViewBag.CurrentType as string ?? "";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>⚔️ DigitalSword - Ürün Listesi</h2>
-        <a asp-controller="Product" asp-action="Create" class="btn btn-success">+ Yeni Ürün Ekle</a>
+        <h2>⚔️ @ViewData["Title"]</h2>
+        <!-- Yeni ürün eklerken hangi sekmedeyse (örn: GiftCard) türü query string ile form sayfasına aktarıyoruz -->
+        <a asp-controller="Product" asp-action="Create" asp-route-type="@currentType" class="btn btn-success">+ Yeni Ürün Ekle</a>
     </div>
 
     @if (TempData["ErrorMessage"] != null)
@@ -33,7 +36,7 @@
             @if (Model == null || !Model.Any())
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">Henüz ürün bulunmuyor.</td>
+                    <td colspan="6" class="text-center text-muted py-4">Bu kategoride henüz ürün bulunmuyor.</td>
                 </tr>
             }
             else
@@ -52,7 +55,7 @@
                                     Düzenle
                                 </a>
 
-                                <form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('@item.Title adlı ürünü silmek istediğinize emin misiniz?');" class="d-inline">
+                                <form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnType="@currentType" method="post" onsubmit="return confirm('@item.Title adlı ürünü silmek istediğinize emin misiniz?');" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-danger">
                                         Sil
                                     </button>

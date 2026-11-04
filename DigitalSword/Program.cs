@@ -9,7 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("WebUIOnly", policy =>
+    {
+        policy.WithOrigins("https://localhost:54690") // launchSettings'deki WebUI portun
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddPersistenceServices(builder.Configuration);
 
 var app = builder.Build();
@@ -35,6 +43,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseCors("WebUIOnly");
 app.UseAuthorization();
 app.MapControllers();
 

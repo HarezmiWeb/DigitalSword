@@ -1,6 +1,7 @@
 ﻿using DigitalSword.Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DigitalSword.WebUI.Controllers;
 
@@ -40,27 +41,55 @@ public class ProductController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? type = null)
     {
         var response = await _httpClient.GetAsync("Products");
+        var products = new List<ProductResponseDto>();
+
         if (response.IsSuccessStatusCode)
         {
-            var products = await response.Content.ReadFromJsonAsync<List<ProductResponseDto>>();
-            return View(products);
+            products = await response.Content.ReadFromJsonAsync<List<ProductResponseDto>>() ?? new List<ProductResponseDto>();
         }
 
-        return View(new List<ProductResponseDto>());
+        if (!string.IsNullOrEmpty(type))
+        {
+            products = products.Where(p =>
+                p.ProductType != null && (
+                    p.ProductType.ToString().Equals(type, StringComparison.OrdinalIgnoreCase) ||
+                    (type.Equals("Game", StringComparison.OrdinalIgnoreCase) &&
+                        (p.ProductType.ToString() == "1" || p.ProductType.ToString().Equals("GameKey", StringComparison.OrdinalIgnoreCase) || p.ProductType.ToString() == "4" || p.ProductType.ToString().Equals("DLC", StringComparison.OrdinalIgnoreCase))) ||
+                    (type.Equals("Epin", StringComparison.OrdinalIgnoreCase) &&
+                        (p.ProductType.ToString() == "2" || p.ProductType.ToString().Equals("E_Pin", StringComparison.OrdinalIgnoreCase) || p.ProductType.ToString() == "3" || p.ProductType.ToString().Equals("InGameItem", StringComparison.OrdinalIgnoreCase)))
+                )
+            ).ToList();
+
+            ViewBag.CurrentType = type;
+            ViewBag.PageTitle = type.ToLower() switch
+            {
+                "game" or "gamekey" => "Oyun Yönetimi",
+                "epin" or "e_pin" => "E-Pin & Paketler Yönetimi",
+                "ingameitem" => "Oyun İçi Ürünler Yönetimi",
+                _ => "Ürün Yönetimi"
+            };
+        }
+        else
+        {
+            ViewBag.PageTitle = "Tüm Ürünler Yönetimi";
+        }
+
+        return View(products);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(string? type = null)
     {
         await LoadCategoriesAndPublishersAsync();
+        ViewBag.DefaultType = type ?? "Game";
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateProductDto dto)
+    public async Task<IActionResult> Create(CreateProductDto dto, string? type = null)
     {
         if (!ModelState.IsValid)
         {
@@ -72,7 +101,7 @@ public class ProductController : Controller
 
         if (response.IsSuccessStatusCode)
         {
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { type = dto.ProductType.ToString() });
         }
 
         var errorDetails = await response.Content.ReadAsStringAsync();
@@ -83,17 +112,17 @@ public class ProductController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, string? returnType = null)
     {
         var response = await _httpClient.DeleteAsync($"Products/{id}");
 
         if (response.IsSuccessStatusCode)
         {
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { type = returnType });
         }
 
         TempData["ErrorMessage"] = $"Ürün silinemedi. Hata kodu: {response.StatusCode}";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { type = returnType });
     }
 
     [HttpGet]
@@ -140,12 +169,11 @@ public class ProductController : Controller
 
         try
         {
-            // Rota: "Products/{dto.Id}" (BaseAddress'e göre)
             var response = await _httpClient.PutAsJsonAsync($"Products/{dto.Id}", dto);
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { type = dto.ProductType });
             }
 
             var errorDetails = await response.Content.ReadAsStringAsync();
@@ -158,5 +186,26 @@ public class ProductController : Controller
 
         await LoadCategoriesAndPublishersAsync();
         return View(dto);
+    }
+    [AllowAnonymous] 
+    [HttpGet]
+    public async Task<IActionResult> Epin(string? category = null)
+    {
+        var url = "api/Products?type=Epin";
+        if (!string.IsNullOrWhiteSpace(category) && category.ToLower() != "tümü")
+        {
+            url += $"&category={category}";
+        }
+
+        var response = await _httpClient.GetAsync(url);
+        var products = new List<ProductResponseDto>();
+
+        if (response.IsSuccessStatusCode)
+        {
+            products = await response.Content.ReadFromJsonAsync<List<ProductResponseDto>>() ?? new List<ProductResponseDto>();
+        }
+
+        ViewBag.SelectedCategory = category ?? "Tümü";
+        return View(products);
     }
 }

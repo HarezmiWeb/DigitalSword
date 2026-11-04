@@ -1,0 +1,74 @@
+﻿@model IEnumerable<DigitalSword.Application.DTOs.SupportTeamMemberDto>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Destek Merkezi";
+}
+
+<div class="page-header d-print-none mb-4 py-3 border-bottom border-secondary" style="background-color: #111827;">
+    <div class="container-xl">
+        <h2 class="page-title text-white">
+            <i class="ti ti-help text-warning me-2"></i> Destek Merkezi
+        </h2>
+        <div class="text-muted mt-1">Sorularınız için destek ekibimizle doğrudan iletişime geçebilirsiniz.</div>
+    </div>
+</div>
+
+<div class="container-xl py-3">
+    <div class="card border-secondary shadow-sm" style="background-color: #111827;">
+        <div class="card-header border-secondary">
+            <h3 class="card-title text-white">
+                <i class="ti ti-users me-2 text-warning"></i> Destek Ekibimiz
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var member in Model)
+                    {
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="card bg-dark border-secondary h-100 text-center p-3">
+                                <div class="d-flex justify-content-center mb-3">
+                                    @if (!string.IsNullOrWhiteSpace(member.ImageUrl))
+                                    {
+                                        <img src="@member.ImageUrl"
+                                             alt="@member.Name"
+                                             class="avatar avatar-xl rounded-circle border border-warning"
+                                             style="width: 80px; height: 80px; object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(member.Name)&background=f59e0b&color=0b0f19';" />
+                                    }
+                                    else
+                                    {
+                                        <span class="avatar avatar-xl rounded-circle bg-warning text-dark fw-bold fs-2 border border-warning"
+                                              style="width: 80px; height: 80px;">
+                                            @member.Name.Substring(0, 1).ToUpper()
+                                        </span>
+                                    }
+                                </div>
+
+                                <h4 class="text-white mb-1">@member.Name</h4>
+                                <div class="badge bg-warning-lt text-warning mb-2 align-self-center">
+                                    @member.Title
+                                </div>
+
+                                <div class="text-muted small mt-auto pt-2">
+                                    <a href="mailto:@member.Email" class="text-decoration-none text-muted d-inline-flex align-items-center">
+                                        <i class="ti ti-mail me-1 text-info"></i> @member.Email
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="ti ti-user-x fs-1 d-block mb-2"></i>
+                        Henüz kayıtlı destek personeli bulunmuyor.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

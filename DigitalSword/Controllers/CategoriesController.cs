@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DigitalSword.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class CategoriesController : ControllerBase
 {

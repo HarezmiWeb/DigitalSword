@@ -1,46 +1,72 @@
-using DigitalSword.WebUI.Models;
+using DigitalSword.Application.DTOs;
 using DigitalSword.WebUI.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using ProductResponseDto = DigitalSword.Application.DTOs.ProductResponseDto;
 
 namespace DigitalSword.WebUI.Controllers
 {
     public class HomeController : Controller
     {
         private readonly HttpClient _httpClient;
-        public HomeController(HttpClient httpClient)
+
+        // Projenizdeki HttpClientFactory mimarisiyle uyumlu DI
+        public HomeController(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("DigitalSwordApi");
         }
+
+        [HttpGet]
         public async Task<IActionResult> Index(string? search = null)
         {
-            var response = await _httpClient.GetAsync("https://localhost:7222/api/Products");
+            // 1. Kategorileri Çek (BaseAddress üzerinden)
+            var catResponse = await _httpClient.GetAsync("Categories");
+            var categories = new List<CategoryResponseDto>();
 
-            if (response.IsSuccessStatusCode)
+            if (catResponse.IsSuccessStatusCode)
             {
-                var products = await response.Content.ReadFromJsonAsync<List<ProductResponseDto>>();
-
-                if (!string.IsNullOrEmpty(search) && products != null)
-                {
-                    products = products
-                        .Where(p => p.Title.Contains(search, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                }
-
-                return View(products);
+                categories = await catResponse.Content.ReadFromJsonAsync<List<CategoryResponseDto>>()
+                             ?? new List<CategoryResponseDto>();
             }
-            var errorContent = await response.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine($"API Hatası: {response.StatusCode} - {errorContent}");
 
-            return View(new List<ProductResponseDto>());
+            // 2. Ürünleri Çek (BaseAddress üzerinden)
+            var prodResponse = await _httpClient.GetAsync("Products");
+            var products = new List<ProductResponseDto>();
+
+            if (prodResponse.IsSuccessStatusCode)
+            {
+                products = await prodResponse.Content.ReadFromJsonAsync<List<ProductResponseDto>>()
+                           ?? new List<ProductResponseDto>();
+            }
+            else
+            {
+                // Eğer istek başarısız olursa sebebi konsola veya debug ekranına düşsün
+                var error = await prodResponse.Content.ReadAsStringAsync();
+                Console.WriteLine($"API Hatası ({prodResponse.StatusCode}): {error}");
+            }
+
+            // 3. Arama Filtresi
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                products = products
+                    .Where(p => p.Title.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                ViewBag.CurrentSearch = search;
+            }
+
+            ViewBag.Categories = categories;
+            return View(products);
         }
+
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
-            var response = await _httpClient.GetAsync($"https://localhost:7222/api/Products/{id}");
+            var response = await _httpClient.GetAsync($"Products/{id}");
 
             if (response.IsSuccessStatusCode)
             {
+                // Doğrudan WebUI'ın beklediği DTO türüne deserialize ediyoruz:
                 var product = await response.Content.ReadFromJsonAsync<DigitalSword.WebUI.Models.DTO.ProductResponseDto>();
                 if (product != null)
                 {
@@ -50,6 +76,7 @@ namespace DigitalSword.WebUI.Controllers
 
             return RedirectToAction("Index");
         }
+
         public IActionResult Privacy()
         {
             return View();

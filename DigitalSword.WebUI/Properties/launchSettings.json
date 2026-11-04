@@ -3,7 +3,7 @@
     "DigitalSword.WebUI": {
         "commandName": "Project",
         "launchBrowser": true,
-        "launchUrl": "Product/Create",
+        "launchUrl": "",
         "environmentVariables": {
             "ASPNETCORE_ENVIRONMENT": "Development"
         },

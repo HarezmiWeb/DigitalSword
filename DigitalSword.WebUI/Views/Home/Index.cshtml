@@ -1,15 +1,83 @@
-﻿@model IEnumerable<DigitalSword.WebUI.Models.DTO.ProductResponseDto>
+﻿@using System.Linq
+@using ProductDto = DigitalSword.Application.DTOs.ProductResponseDto
+@model IEnumerable<ProductDto>
 
 @{
-    ViewData["Title"] = "Vitrin - Popüler Oyunlar";
+    ViewData["Title"] = "Ana Sayfa - DigitalSword";
+
+    var allProducts = Model?.ToList() ?? new List<ProductDto>();
+
+    // 1. Popüler Oyunlar (Game / DLC)
+    var games = allProducts.Where(p => p.ProductType != null && (
+        p.ProductType.ToString().Equals("Game", StringComparison.OrdinalIgnoreCase) ||
+        p.ProductType.ToString().Equals("GameKey", StringComparison.OrdinalIgnoreCase) ||
+        p.ProductType.ToString() == "1" ||
+        p.ProductType.ToString() == "4" ||
+        p.ProductType.ToString().Equals("DLC", StringComparison.OrdinalIgnoreCase)
+    )).Take(4).ToList();
+
+    // 2. E-Pin ve Oyun İçi Ürünler
+    var epins = allProducts.Where(p => p.ProductType != null && (
+        p.ProductType.ToString().Equals("Epin", StringComparison.OrdinalIgnoreCase) ||
+        p.ProductType.ToString().Equals("E_Pin", StringComparison.OrdinalIgnoreCase) ||
+        p.ProductType.ToString() == "2" ||
+        p.ProductType.ToString().Equals("InGameItem", StringComparison.OrdinalIgnoreCase) ||
+        p.ProductType.ToString() == "3"
+    )).Take(4).ToList();
+
+    // 3. Hediye Kartları
+    var giftCards = allProducts.Where(p =>
+        (!string.IsNullOrEmpty(p.Title) && p.Title.Contains("Kart", StringComparison.OrdinalIgnoreCase)) ||
+        (!string.IsNullOrEmpty(p.Title) && p.Title.Contains("Google Play", StringComparison.OrdinalIgnoreCase)) ||
+        (!string.IsNullOrEmpty(p.Title) && p.Title.Contains("Steam Cüzdan", StringComparison.OrdinalIgnoreCase)) ||
+        (!string.IsNullOrEmpty(p.Title) && p.Title.Contains("Gift", StringComparison.OrdinalIgnoreCase))
+    ).Take(4).ToList();
 }
 
 <style>
-    /* Sabit ve hizalı kart yapısı */
-    .game-card {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 12px;
+    /* Hero Banner */
+    .hero-banner {
+        background-color: #0b0f19;
+        border: 1px solid #30363d;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .hero-badge {
+        background-color: rgba(245, 159, 0, 0.15);
+        color: #f59f00;
+        border: 1px solid rgba(245, 159, 0, 0.35);
+        letter-spacing: 1px;
+    }
+
+    /* "Tümünü Gör" Butonu */
+    .btn-see-all {
+        background-color: #161b22;
+        color: #f0f6fc;
+        border: 1px solid #30363d;
+        padding: 7px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .btn-see-all:hover {
+            background-color: #21262d;
+            color: #f59f00;
+            border-color: #8b949e;
+            transform: translateX(2px);
+        }
+
+    /* Ürün Kartı Stili */
+    .product-card {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 14px;
         overflow: hidden;
         transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         display: flex;
@@ -17,156 +85,312 @@
         height: 100%;
     }
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: #f59f00 !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: #f59f00;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
         }
 
-    /* Görsel Konteyneri: Sabit yükseklik ve taşmayı engelleme */
-    .game-thumb-wrapper {
-        position: relative;
-        width: 100%;
-        height: 220px; /* Tüm kartlarda standart görsel yüksekliği */
+    .product-thumb-wrapper {
+        height: 180px;
         background-color: #0b0f19;
-        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 1.25rem;
+        border-bottom: 1px solid #21262d;
     }
 
-    /* Arka Plandaki Bulanık Katman (Boşlukları estetik doldurur) */
-    .game-thumb-blur {
-        position: absolute;
-        inset: -15px;
-        background-size: cover;
-        background-position: center;
-        filter: blur(20px) brightness(0.3);
-        transform: scale(1.15);
-        z-index: 1;
-    }
-
-    /* Öndeki Asıl Resim (Asla kesilmez, kutuya tam sığar) */
-    .game-thumb-img {
-        position: relative;
+    .product-thumb-img {
         max-width: 100%;
         max-height: 100%;
-        width: auto;
-        height: auto;
         object-fit: contain;
-        z-index: 2;
         transition: transform 0.3s ease;
-        border-radius: 4px;
     }
 
-    .game-card:hover .game-thumb-img {
+    .product-card:hover .product-thumb-img {
         transform: scale(1.05);
     }
+
+    /* Güven Avantaj Kartları */
+    .trust-card {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        padding: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+        .trust-card:hover {
+            border-color: #f59f00;
+        }
+
+    .btn-buy-action {
+        transition: all 0.2s ease;
+    }
+
+        .btn-buy-action.added {
+            background-color: #2fb344 !important;
+            border-color: #2fb344 !important;
+            color: #ffffff !important;
+        }
 </style>
 
-<!-- HERO / KAMPANYA BANNER -->
-<div class="card bg-dark border-secondary p-4 p-md-5 mb-5 shadow" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border-radius: 12px;">
-    <div class="row align-items-center">
-        <div class="col-lg-8">
-            <span class="badge bg-warning text-dark px-3 py-2 fw-bold text-uppercase mb-3">
-                <i class="ti ti-flame me-1"></i> Haftanın Fırsatları
-            </span>
-            <h1 class="display-6 fw-bold text-white mb-2">En Popüler Oyunlar En Uygun Fiyatlarla</h1>
-            <p class="text-secondary fs-5 mb-4">Anında teslimat dijital lisans anahtarlarıyla maceraya kesintisiz devam et.</p>
-            <a href="#games-grid" class="btn btn-warning btn-lg fw-bold px-4">
-                <i class="ti ti-flame me-1"></i> Oyunları Keşfet
-            </a>
+<!-- HERO BANNER -->
+<div class="hero-banner mb-5 shadow-sm">
+    <div class="row g-0 align-items-center" style="min-height: 280px;">
+        <div class="col-lg-6 p-4 p-md-5 d-flex flex-column justify-content-center">
+            <div>
+                <span class="badge hero-badge px-3 py-1 text-uppercase fw-bold mb-3 d-inline-block">
+                    Haftanın Fırsatları
+                </span>
+                <h1 class="display-6 fw-bold text-white mb-2">
+                    En Popüler Oyunlar & Lisanslar
+                </h1>
+                <p class="text-secondary fs-6 mb-4">
+                    Yetkili satıcı garantisiyle 7/24 anında dijital teslimat.
+                </p>
+                <a href="/kategori/oyunlar" class="btn btn-warning fw-bold px-4 py-2">
+                    Oyunları Keşfet
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-6 h-100 position-relative" style="min-height: 280px;">
+            <img src="~/img/Images1.jpg"
+                 alt="DigitalSword Kampanyalar"
+                 class="w-100 h-100"
+                 style="object-fit: cover; object-position: center right; position: absolute; top: 0; right: 0; -webkit-mask-image: linear-gradient(to left, black 70%, transparent 100%); mask-image: linear-gradient(to left, black 70%, transparent 100%);" />
         </div>
     </div>
 </div>
 
-<!-- ARAMA VE BAŞLIK ÇUBUĞU -->
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4" id="games-grid">
-    <div class="d-flex align-items-center gap-2">
-        <i class="ti ti-device-gamepad-2 text-warning fs-2"></i>
-        <h3 class="text-white mb-0 fw-bold">Mağazadaki Oyunlar</h3>
-    </div>
-
-    <!-- Arama Kutusu -->
-    <form asp-action="Index" method="get" class="d-flex gap-2" style="max-width: 380px; width: 100%;">
-        <div class="input-icon w-100">
-            <span class="input-icon-addon">
-                <i class="ti ti-search text-secondary"></i>
-            </span>
-            <input type="text" name="search" value="@Context.Request.Query["search"]" class="form-control bg-dark text-white border-secondary" placeholder="Oyun ara..." />
+<!-- GÜVEN VE AVANTAJ ŞERİDİ -->
+<div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+        <div class="trust-card text-center h-100">
+            <i class="ti ti-bolt fs-1 text-warning mb-2 d-block"></i>
+            <h6 class="text-white fw-bold mb-1">Anında Teslimat</h6>
+            <small class="text-secondary">7/24 otomatik kod gönderimi</small>
         </div>
-        <button type="submit" class="btn btn-warning">
-            <i class="ti ti-search"></i>
-        </button>
-    </form>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="trust-card text-center h-100">
+            <i class="ti ti-shield-check fs-1 text-info mb-2 d-block"></i>
+            <h6 class="text-white fw-bold mb-1">Güvenli Ödeme</h6>
+            <small class="text-secondary">3D Secure & 256-Bit SSL</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="trust-card text-center h-100">
+            <i class="ti ti-headset fs-1 text-warning mb-2 d-block"></i>
+            <h6 class="text-white fw-bold mb-1">Hızlı Destek</h6>
+            <small class="text-secondary">Uzman destek ekibi</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="trust-card text-center h-100">
+            <i class="ti ti-certificate fs-1 text-info mb-2 d-block"></i>
+            <h6 class="text-white fw-bold mb-1">%100 Orijinal</h6>
+            <small class="text-secondary">Yetkili dağıtıcı lisansları</small>
+        </div>
+    </div>
 </div>
 
-<!-- OYUN KARTLARI GRİDİ -->
-<div class="row g-4">
-    @if (Model != null && Model.Any())
-    {
-        foreach (var game in Model)
+<!-- BÖLÜM 1: POPÜLER OYUNLAR -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-white mb-1">Popüler Oyunlar</h2>
+            <p class="text-secondary small mb-0">En çok oynanan AAA ve bağımsız PC yapımları.</p>
+        </div>
+        <a href="/kategori/oyunlar" class="btn-see-all">
+            Tümünü Gör <i class="ti ti-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @if (games.Any())
         {
-            <div class="col-sm-6 col-lg-4 col-xl-4">
-                <div class="game-card">
-                    <!-- KART GÖRSEL ALANI -->
-                    <div class="game-thumb-wrapper">
-                        <a asp-action="Detail" asp-route-id="@game.Id" class="w-100 h-100 d-flex align-items-center justify-content-center text-decoration-none">
-                            <!-- Arka plan bulanıklığı -->
-                            <div class="game-thumb-blur" style="background-image: url('@(string.IsNullOrEmpty(game.ImageUrl) ? "https://placehold.co/600x400/1e293b/white?text=DigitalSword" : game.ImageUrl)');"></div>
-
-                            <!-- Öndeki net görsel -->
-                            <img src="@(string.IsNullOrEmpty(game.ImageUrl) ? "https://placehold.co/600x400/1e293b/white?text=DigitalSword" : game.ImageUrl)"
-                                 alt="@game.Title"
-                                 class="game-thumb-img" />
+            foreach (var item in games)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <div class="product-card">
+                        <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="product-thumb-wrapper text-decoration-none">
+                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/400x300/1e293b/white?text=DigitalSword" : item.ImageUrl)"
+                                 class="product-thumb-img" alt="@item.Title" />
                         </a>
-                    </div>
-
-                    <!-- KART BİLGİ ALANI -->
-                    <div class="game-card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-secondary-lt text-white" style="font-size: 0.75rem;">
-                                @(game.ProductType == 1 ? "Dijital Lisans" : "E-Pin")
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <span class="text-secondary small mb-1">
+                                <i class="ti ti-package me-1"></i>@(item.Stock > 0 ? $"{item.Stock} Adet Stokta" : "Tükendi")
                             </span>
-                            <span class="text-secondary small">
-                                <i class="ti ti-box me-1"></i>@(game.Stock > 0 ? $"{game.Stock} Adet" : "Tükendi")
-                            </span>
-                        </div>
-
-                        <!-- Oyun Başlığı -->
-                        <h4 class="text-truncate mb-2" title="@game.Title">
-                            <a asp-action="Detail" asp-route-id="@game.Id" class="text-white text-decoration-none fw-bold">
-                                @game.Title
+                            <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="text-white text-decoration-none fw-bold text-truncate mb-3" title="@item.Title">
+                                @item.Title
                             </a>
-                        </h4>
-
-                        <!-- Açıklama Özeti -->
-                        <p class="game-desc-clamp mb-4">
-                            @(string.IsNullOrEmpty(game.Description) ? "Detaylı açıklama için tıklayın..." : game.Description)
-                        </p>
-
-                        <!-- Fiyat ve Satın Al / İncele Butonu -->
-                        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary mt-auto">
-                            <div>
-                                <span class="text-secondary d-block" style="font-size: 0.75rem;">Fiyat</span>
-                                <span class="fs-3 fw-bold text-warning">@game.Price.ToString("C2")</span>
+                            <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-secondary d-block" style="font-size: 0.65rem;">Fiyat</span>
+                                    <span class="fs-5 fw-bold text-warning">@item.Price.ToString("C2")</span>
+                                </div>
+                                <button type="button"
+                                        onclick="handleAddToCart(@item.Id, this)"
+                                        class="btn btn-warning btn-sm fw-bold px-3 btn-buy-action d-flex align-items-center gap-1">
+                                    <i class="ti ti-shopping-cart-plus"></i>
+                                    <span>Satın Al</span>
+                                </button>
                             </div>
-
-                            <a asp-action="Detail" asp-route-id="@game.Id" class="btn btn-warning btn-sm px-3 fw-bold">
-                                <i class="ti ti-shopping-cart-plus me-1"></i> İncele & Satın Al
-                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
         }
-    }
-    else
-    {
-        <div class="col-12 py-5 text-center text-muted">
-            <i class="ti ti-mood-empty fs-1 text-secondary mb-2 d-block"></i>
-            <h4 class="text-white">Şu anda listelenecek oyun bulunamadı.</h4>
-            <p>Admin panelinden yeni oyunlar ekleyerek mağazayı doldurabilirsiniz.</p>
+        else
+        {
+            <div class="col-12 text-center text-muted py-3">Bu kategoride henüz ürün listelenmiyor.</div>
+        }
+    </div>
+</section>
+
+<!-- BÖLÜM 2: E-PIN & PAKETLER -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-white mb-1">E-Pin & Paketler</h2>
+            <p class="text-secondary small mb-0">LoL RP, Valorant VP ve popüler oyun içi para birimleri.</p>
         </div>
-    }
-</div>
+        <a href="/kategori/epin" class="btn-see-all">
+            Tümünü Gör <i class="ti ti-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @if (epins.Any())
+        {
+            foreach (var item in epins)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <div class="product-card">
+                        <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="product-thumb-wrapper text-decoration-none">
+                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/400x300/1e293b/white?text=DigitalSword" : item.ImageUrl)"
+                                 class="product-thumb-img" alt="@item.Title" />
+                        </a>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <span class="text-secondary small mb-1">
+                                <i class="ti ti-package me-1"></i>@(item.Stock > 0 ? $"{item.Stock} Adet Stokta" : "Tükendi")
+                            </span>
+                            <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="text-white text-decoration-none fw-bold text-truncate mb-3" title="@item.Title">
+                                @item.Title
+                            </a>
+                            <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-secondary d-block" style="font-size: 0.65rem;">Fiyat</span>
+                                    <span class="fs-5 fw-bold text-warning">@item.Price.ToString("C2")</span>
+                                </div>
+                                <button type="button"
+                                        onclick="handleAddToCart(@item.Id, this)"
+                                        class="btn btn-warning btn-sm fw-bold px-3 btn-buy-action d-flex align-items-center gap-1">
+                                    <i class="ti ti-shopping-cart-plus"></i>
+                                    <span>Satın Al</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted py-3">Bu kategoride henüz ürün listelenmiyor.</div>
+        }
+    </div>
+</section>
+
+<!-- BÖLÜM 3: HEDİYE KARTLARI -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-white mb-1">Hediye Kartları</h2>
+            <p class="text-secondary small mb-0">Google Play, Steam Cüzdan ve bakiye kartları.</p>
+        </div>
+        <a href="/kategori/hediye-kartlari" class="btn-see-all">
+            Tümünü Gör <i class="ti ti-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @if (giftCards.Any())
+        {
+            foreach (var item in giftCards)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <div class="product-card">
+                        <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="product-thumb-wrapper text-decoration-none">
+                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/400x300/1e293b/white?text=DigitalSword" : item.ImageUrl)"
+                                 class="product-thumb-img" alt="@item.Title" />
+                        </a>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <span class="text-secondary small mb-1">
+                                <i class="ti ti-package me-1"></i>@(item.Stock > 0 ? $"{item.Stock} Adet Stokta" : "Tükendi")
+                            </span>
+                            <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="text-white text-decoration-none fw-bold text-truncate mb-3" title="@item.Title">
+                                @item.Title
+                            </a>
+                            <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-secondary d-block" style="font-size: 0.65rem;">Fiyat</span>
+                                    <span class="fs-5 fw-bold text-warning">@item.Price.ToString("C2")</span>
+                                </div>
+                                <button type="button"
+                                        onclick="handleAddToCart(@item.Id, this)"
+                                        class="btn btn-warning btn-sm fw-bold px-3 btn-buy-action d-flex align-items-center gap-1">
+                                    <i class="ti ti-shopping-cart-plus"></i>
+                                    <span>Satın Al</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted py-3">Bu kategoride henüz ürün listelenmiyor.</div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function handleAddToCart(productId, buttonElement) {
+            fetch('/Cart/AddToCart/' + productId, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        var badge = document.getElementById('cart-count');
+                        if (badge) {
+                            badge.innerText = data.totalCount;
+                        }
+
+                        if (buttonElement) {
+                            var originalHtml = buttonElement.innerHTML;
+                            buttonElement.classList.add('added');
+                            buttonElement.innerHTML = '<i class="ti ti-check"></i> <span>Eklendi!</span>';
+                            buttonElement.disabled = true;
+
+                            setTimeout(function () {
+                                buttonElement.classList.remove('added');
+                                buttonElement.innerHTML = originalHtml;
+                                buttonElement.disabled = false;
+                            }, 1200);
+                        }
+                    }
+                })
+                .catch(function (err) {
+                    console.error("Sepete ekleme hatası:", err);
+                });
+        }
+    </script>
+}

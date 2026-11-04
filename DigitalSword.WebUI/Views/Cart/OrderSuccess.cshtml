@@ -1,0 +1,32 @@
+﻿@model DigitalSword.WebUI.Models.OrderResultViewModel
+@{
+    ViewData["Title"] = "Sipariş Başarılı";
+}
+
+<div class="container py-5 text-center">
+    <div class="mb-4">
+        <i class="ti ti-circle-check fs-1 text-success d-block mb-2"></i>
+        <h2 class="text-white fw-bold">Ödeme Başarılı!</h2>
+        <p class="text-secondary">Sipariş No: <span class="text-white fw-bold">@Model.OrderNumber</span></p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card bg-dark border-secondary p-4 text-start">
+                <h5 class="text-white fw-bold mb-3 border-bottom border-secondary pb-2">
+                    <i class="ti ti-key me-2 text-warning"></i>Dijital Lisans Anahtarlarınız
+                </h5>
+                @foreach (var item in Model.Items)
+                {
+                    <div class="p-3 mb-3 rounded-3" style="background-color: #0b0f19; border: 1px dashed #f59f00;">
+                        <span class="text-secondary d-block small">@item.ProductTitle</span>
+                        <span class="text-warning fw-bold fs-5 user-select-all font-monospace">@item.LicenseKey</span>
+                    </div>
+                }
+                <div class="mt-4 text-center">
+                    <a href="/" class="btn btn-outline-secondary">Mağazaya Dön</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+﻿@model IEnumerable<DigitalSword.Application.DTOs.SupportTeamMemberDto>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Destek Ekibi Yönetimi";
+}
+
+<div class="page-header d-print-none mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="page-title text-white">
+                <i class="ti ti-help text-warning me-2"></i> Destek Ekibi Yönetimi
+            </h2>
+            <div class="text-muted mt-1">Destek ekibi üyelerini görüntüleyebilir, düzenleyebilir ve yeni personel ekleyebilirsiniz.</div>
+        </div>
+        <div class="col-auto ms-auto">
+            <a asp-action="Create" class="btn btn-warning">
+                <i class="ti ti-plus me-1"></i> Yeni Ekip Üyesi Ekle
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-white">Personel Adı</th>
+                        <th class="text-white">Unvan / Rol</th>
+                        <th class="text-white">E-Posta</th>
+                        <th class="text-end text-white">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var member in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-white">@member.Name</td>
+                                <td class="text-warning">@member.Title</td>
+                                <td>@member.Email</td>
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@member.Id" class="btn btn-sm btn-outline-warning me-1">
+                                        <i class="ti ti-edit"></i> Düzenle
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@member.Id" method="post" class="d-inline" onsubmit="return confirm('Bu ekip üyesini silmek istediğinize emin misiniz?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="ti ti-trash"></i> Sil
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">Henüz kayıtlı destek personeli bulunmuyor.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

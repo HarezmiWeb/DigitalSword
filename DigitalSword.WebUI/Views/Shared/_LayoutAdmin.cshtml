@@ -9,13 +9,23 @@
 
     <style>
             .navbar-vertical .navbar-brand {
-                padding: 1rem;
+                padding: 1.25rem 1rem;
                 font-size: 1.15rem;
             }
 
             .page-wrapper {
                 min-height: 100vh;
             }
+
+            .navbar-nav .nav-link {
+                padding: 0.65rem 1rem;
+                border-radius: 6px;
+                transition: background-color 0.15s ease;
+            }
+
+                .navbar-nav .nav-link:hover {
+                    background-color: rgba(255, 255, 255, 0.05);
+                }
     </style>
 </head>
 <body class="layout-fluid">
@@ -26,37 +36,82 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <h1 class="navbar-brand navbar-brand-autodark">
-                    <a asp-controller="Product" asp-action="Index" class="text-decoration-none text-white fw-bold">
-                         DigitalSword Admin
+                    <a href="/Product" class="text-decoration-none text-white fw-bold">
+                        DigitalSword Admin
                     </a>
                 </h1>
 
                 <div class="collapse navbar-collapse" id="sidebar-menu">
-                    <ul class="navbar-nav pt-lg-3">
+                    <ul class="navbar-nav pt-lg-2 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Product" asp-action="Index">
+                            <a class="nav-link" href="/Product?type=Epin">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <i class="ti ti-device-gamepad-2 fs-2 text-warning"></i>
+                                    <i class="ti ti-diamond fs-2 text-info"></i>
                                 </span>
-                                <span class="nav-link-title">Ürünler (Oyunlar)</span>
+                                <span class="nav-link-title">E-Pin & Paketler</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="MenuItem" asp-action="Index">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-menu-2"></i></span>
-                                <span class="nav-link-title">Menü Yönetimi</span>
+                            <a class="nav-link" href="/Product?type=GiftCard">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-gift fs-2 text-cyan"></i>
+                                </span>
+                                <span class="nav-link-title">Hediye Kartları</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Publisher" asp-action="Index">
+                            <a class="nav-link" href="/Product?type=Game">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-device-gamepad-2 fs-2 text-danger"></i>
+                                </span>
+                                <span class="nav-link-title">Oyun Yönetimi</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Category/Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-category fs-2 text-warning"></i>
+                                </span>
+                                <span class="nav-link-title">Kategori Yönetimi</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Publisher/Index">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <i class="ti ti-building-store fs-2 text-success"></i>
                                 </span>
                                 <span class="nav-link-title">Yayıncılar</span>
                             </a>
                         </li>
-                        <li class="nav-item mt-4">
-                            <a class="nav-link text-danger" asp-controller="Home" asp-action="Index">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/MenuItem/Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-menu-2 fs-2 text-secondary"></i>
+                                </span>
+                                <span class="nav-link-title">Menü Yönetimi</span>
+                            </a>
+                        </li>
+
+                        <!-- Destek ve İletişim Ayrı Yönetim Sekmeleri -->
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="AdminSupport" asp-action="Index">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-help fs-2 text-warning"></i>
+                                </span>
+                                <span class="nav-link-title">Destek Yönetimi</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="AdminContact" asp-action="Messages">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="ti ti-mail fs-2 text-info"></i>
+                                </span>
+                                <span class="nav-link-title">İletişim & Mesajlar</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item mt-4 pt-3 border-top border-secondary">
+                            <a class="nav-link text-danger" href="/">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <i class="ti ti-arrow-back-up fs-2"></i>
                                 </span>
@@ -67,14 +122,15 @@
                 </div>
             </div>
         </aside>
+
         <div class="page-wrapper">
             <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none border-bottom">
                 <div class="container-xl justify-content-end">
                     <div class="d-flex align-items-center gap-3">
                         <span class="badge bg-danger py-2 px-3 fs-5">
-                          @User.Identity?.Name (Admin)
+                            @User.Identity?.Name (Admin)
                         </span>
-                        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-danger btn-sm">Çıkış Yap</a>
+                        <a href="/Auth/Logout" class="btn btn-outline-danger btn-sm">Çıkış Yap</a>
                     </div>
                 </div>
             </header>

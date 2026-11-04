@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "İletişim";
+}
+
+<div class="container-xl py-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card bg-dark border-secondary shadow-sm">
+                <div class="card-header border-secondary">
+                    <h3 class="card-title text-white">Bize Ulaşın</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="SendMessage" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-white">Adınız Soyadınız</label>
+                            <input type="text" name="SenderName" class="form-control bg-dark text-white border-secondary" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-white">E-Posta Adresiniz</label>
+                            <input type="email" name="SenderEmail" class="form-control bg-dark text-white border-secondary" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-white">Konu</label>
+                            <input type="text" name="Subject" class="form-control bg-dark text-white border-secondary" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-white">Mesajınız</label>
+                            <textarea name="Message" class="form-control bg-dark text-white border-secondary" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-info w-100">Gönder</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card bg-dark border-secondary shadow-sm">
+                <div class="card-header border-secondary">
+                    <h3 class="card-title text-white">Kurumsal Bilgiler</h3>
+                </div>
+                <div class="card-body text-white">
+                    <p><i class="ti ti-mail text-info me-2"></i> <strong>E-Posta:</strong> support@digitalsword.com</p>
+                    <p class="mb-0"><i class="ti ti-map-pin text-danger me-2"></i> <strong>Adres:</strong> Başakşehir, İstanbul / Türkiye</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

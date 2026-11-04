@@ -9,10 +9,18 @@
   <ItemGroup>
     <ProjectReference Include="..\DigitalSword.Application\DigitalSword.Application.csproj" />
     <ProjectReference Include="..\DigitalSword.Domain\DigitalSword.Domain.csproj" />
+    <ProjectReference Include="..\DigitalSword.Persistence\DigitalSword.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

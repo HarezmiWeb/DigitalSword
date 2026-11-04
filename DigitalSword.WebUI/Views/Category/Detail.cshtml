@@ -1,0 +1,163 @@
+﻿@model IEnumerable<DigitalSword.Application.DTOs.ProductResponseDto>
+
+@{
+    var title = ViewBag.CategoryTitle as string ?? ViewBag.CurrentSlug as string ?? "Kategori";
+    ViewData["Title"] = title;
+    var subCategories = ViewBag.SubCategories as List<DigitalSword.Application.DTOs.CategoryResponseDto>;
+    int? activeSubId = ViewBag.ActiveSubId as int?;
+    string currentSlug = ViewBag.CurrentSlug as string ?? "";
+}
+
+<style>
+    /* Hap / Sekme Buton Stilleri */
+    .filter-pill {
+        background-color: #161b22;
+        color: #94a3b8;
+        border: 1px solid #30363d;
+        padding: 8px 22px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .filter-pill:hover {
+            background-color: #21262d;
+            color: #ffffff;
+            border-color: #8b949e;
+        }
+
+        .filter-pill.active {
+            background-color: #f59f00;
+            color: #0b0f19;
+            border-color: #f59f00;
+            box-shadow: 0 0 15px rgba(245, 159, 0, 0.35);
+        }
+
+    /* Ürün Kartı Stilleri */
+    .category-product-card {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+        .category-product-card:hover {
+            transform: translateY(-4px);
+            border-color: #f59f00;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+        }
+
+    .card-thumb-wrapper {
+        height: 190px;
+        background-color: #0b0f19;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.25rem;
+        border-bottom: 1px solid #21262d;
+    }
+
+    .card-thumb-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .category-product-card:hover .card-thumb-img {
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="container py-5">
+    <!-- BAŞLIK & AÇIKLAMA ALANI -->
+    <div class="text-center mb-5">
+        <span class="badge bg-warning-lt text-warning text-uppercase px-3 py-1 mb-2 fw-bold" style="letter-spacing: 1px;">
+            Katalog
+        </span>
+        <h1 class="display-5 fw-bold text-white mb-2">@title.ToUpper()</h1>
+        <p class="text-secondary fs-6 mb-0">Resmi yetkili satıcı garantisiyle anında teslimat lisans ve kodlar.</p>
+    </div>
+
+    <!-- HAP (PILL) FİLTRE BUTONLARI -->
+    <div class="d-flex justify-content-center flex-wrap gap-2 mb-5">
+        <!-- Tümü Butonu -->
+        <a href="/kategori/@currentSlug"
+           class="filter-pill @(activeSubId == null ? "active" : "")">
+            <i class="ti ti-layout-grid"></i> Tümü
+        </a>
+
+        <!-- Alt Kategoriler (Valorant VP, LoL RP vb.) -->
+        @if (subCategories != null && subCategories.Any())
+        {
+            foreach (var sub in subCategories)
+            {
+                <a href="/kategori/@currentSlug?subId=@sub.Id"
+                   class="filter-pill @(activeSubId == sub.Id ? "active" : "")">
+                    @sub.Name
+                </a>
+            }
+        }
+    </div>
+
+    <!-- ÜRÜN LİSTESİ -->
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="category-product-card">
+                        <!-- Görsel -->
+                        <div class="card-thumb-wrapper">
+                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/400x300/1e293b/white?text=DigitalSword" : item.ImageUrl)"
+                                 class="card-thumb-img"
+                                 alt="@item.Title" />
+                        </div>
+
+                        <!-- Gövde -->
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <span class="text-secondary small mb-1">
+                                <i class="ti ti-package me-1"></i>@(item.Stock > 0 ? $"{item.Stock} Adet Stokta" : "Tükendi")
+                            </span>
+                            <h5 class="text-white fw-bold text-truncate mb-3" title="@item.Title">
+                                @item.Title
+                            </h5>
+
+                            <!-- Fiyat ve Satın Al -->
+                            <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-secondary d-block" style="font-size: 0.7rem;">Fiyat</span>
+                                    <span class="fs-4 fw-bold text-warning">@item.Price.ToString("C2")</span>
+                                </div>
+                                <a asp-controller="Home" asp-action="Detail" asp-route-id="@item.Id" class="btn btn-warning btn-sm fw-bold px-3">
+                                    Satın Al
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 py-5 text-center text-muted">
+                <i class="ti ti-box-off fs-1 text-secondary mb-2 d-block"></i>
+                <h4 class="text-white">Bu kategoride listelenecek ürün bulunamadı.</h4>
+                <p>Başka bir sekme seçebilir veya daha sonra tekrar kontrol edebilirsiniz.</p>
+                <a href="/kategori/@currentSlug" class="btn btn-outline-secondary btn-sm mt-2">
+                    Tümünü Göster
+                </a>
+            </div>
+        }
+    </div>
+</div>

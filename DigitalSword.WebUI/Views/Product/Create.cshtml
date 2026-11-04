@@ -2,41 +2,107 @@
 
 @{
     Layout = "_LayoutAdmin";
-    ViewData["Title"] = "Yeni Oyun Ekle";
+
+    // URL'den veya Modelden gelen ürün türünü yakala
+    string queryType = Context.Request.Query["type"].ToString();
+    if (string.IsNullOrEmpty(queryType))
+    {
+        queryType = Model?.ProductType.ToString() ?? "Game";
+    }
+
+    bool isGame = queryType.Equals("Game", StringComparison.OrdinalIgnoreCase) || queryType.Equals("GameKey", StringComparison.OrdinalIgnoreCase);
+    bool isEpin = queryType.Equals("Epin", StringComparison.OrdinalIgnoreCase) || queryType.Equals("E_Pin", StringComparison.OrdinalIgnoreCase);
+    bool isGiftCard = queryType.Equals("GiftCard", StringComparison.OrdinalIgnoreCase);
+
+    // Türe göre dinamik başlıklar, buton renkleri ve metinler
+    string pageTitle = queryType switch
+    {
+        "GiftCard" => "Yeni Hediye Kartı Ekle",
+        "Epin" => "Yeni E-Pin / Paket Ekle",
+        _ => "Yeni Oyun Ekle"
+    };
+
+    string cardHeaderTitle = queryType switch
+    {
+        "GiftCard" => "Hediye Kartı Künyesi ve Bilgileri",
+        "Epin" => "E-Pin / Paket Künyesi ve Bilgileri",
+        _ => "Oyun Künyesi ve Bilgileri"
+    };
+
+    string titlePlaceholder = queryType switch
+    {
+        "GiftCard" => "Örn: Netflix 100 TL, Spotify 3 Aylık",
+        "Epin" => "Örn: 460 RP, 1150 VP, 60 UC",
+        _ => "Örn: Cyberpunk 2077, Elden Ring"
+    };
+
+    string descPlaceholder = queryType switch
+    {
+        "GiftCard" => "Hediye kartının ilgili platformda kullanım koşulları ve talimatları...",
+        "Epin" => "Kodun oyun içinde veya istemcide aktif edilme talimatları...",
+        _ => "Oyunun hikayesi, özellikleri ve sistem gereksinimleri..."
+    };
+
+    string btnClass = queryType switch
+    {
+        "GiftCard" => "btn-info text-dark fw-bold",
+        "Epin" => "btn-cyan text-dark fw-bold",
+        _ => "btn-warning"
+    };
+
+    ViewData["Title"] = pageTitle;
 }
 
 <div class="page-header d-print-none mb-4">
     <div class="row align-items-center">
         <div class="col">
             <h2 class="page-title text-white">
-                <i class="ti ti-device-gamepad-2 text-warning me-2"></i> Yeni Oyun Ekle
+                <i class="ti @(isGiftCard ? "ti-gift text-cyan" : isEpin ? "ti-diamond text-info" : "ti-device-gamepad-2 text-warning") me-2"></i> @pageTitle
             </h2>
-            <div class="text-muted mt-1">Mağazaya yeni bir dijital oyun veya epin ürünü tanımlayın.</div>
+            <div class="text-muted mt-1">Mağazaya yeni bir dijital ürün künyesi tanımlayın.</div>
         </div>
         <div class="col-auto ms-auto">
-            <a asp-action="Index" class="btn btn-outline-secondary">
+            <a asp-action="Index" asp-route-type="@queryType" class="btn btn-outline-secondary">
                 <i class="ti ti-arrow-left me-1"></i> Listeye Dön
             </a>
         </div>
     </div>
 </div>
+
 <div class="row justify-content-center">
     <div class="col-lg-9 col-md-11">
         <div class="card bg-dark border-secondary shadow-sm">
             <div class="card-header border-secondary">
-                <h3 class="card-title text-white">Oyun Genel Bilgileri</h3>
+                <h3 class="card-title text-white">@cardHeaderTitle</h3>
             </div>
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" asp-route-type="@queryType" method="post">
+                <!-- Ürün Türünü Arka Plana Taşıyan Gizli Input -->
+                <input type="hidden" asp-for="ProductType" value="@queryType" />
+
+                @if (isEpin)
+                {
+                    <!-- E-Pin için Yayıncı alanı yoktur; FK hatası vermemesi için geçerli ID (1) arka plandan gider -->
+                    <input type="hidden" asp-for="PublisherId" value="1" />
+                }
+                else if (isGiftCard)
+                {
+                    <!-- Hediye Kartı için Kategori ve Yayıncı gerekmez; arka plandan geçerli ID'ler gider -->
+                    <input type="hidden" asp-for="CategoryId" value="1" />
+                    <input type="hidden" asp-for="PublisherId" value="1" />
+                }
+
                 <div class="card-body">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
                     <div class="row">
                         <div class="col-md-8 mb-3">
-                            <label asp-for="Title" class="form-label text-white required">Oyun Adı</label>
+                            <label asp-for="Title" class="form-label text-white required">
+                                @(isEpin ? "E-Pin / Paket Adı" : isGiftCard ? "Kart Adı" : "Oyun Adı")
+                            </label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <i class="ti ti-typography"></i>
                                 </span>
-                                <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Cyberpunk 2077, Elden Ring, GTA V" autofocus />
+                                <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="@titlePlaceholder" autofocus />
                             </div>
                             <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
@@ -51,36 +117,60 @@
                             <span asp-validation-for="Price" class="text-danger small"></span>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="CategoryId" class="form-label text-white required">Kategori</label>
-                            <select asp-for="CategoryId" class="form-select bg-dark text-white border-secondary">
-                                <option value="">-- Kategori Seçiniz --</option>
-                                @if (ViewBag.Categories != null)
-                                {
-                                    foreach (var cat in ViewBag.Categories)
+                    @if (isGame)
+                    {
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CategoryId" class="form-label text-white required">Oyun Türü / Kategori</label>
+                                <select asp-for="CategoryId" class="form-select bg-dark text-white border-secondary" required>
+                                    <option value="">-- Kategori Seçiniz (FPS, Aksiyon...) --</option>
+                                    @if (ViewBag.Categories != null)
                                     {
-                                        <option value="@cat.Id">@cat.Name</option>
+                                        foreach (var cat in ViewBag.Categories)
+                                        {
+                                            <option value="@cat.Id">@cat.Name</option>
+                                        }
                                     }
-                                }
-                            </select>
-                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="PublisherId" class="form-label text-white required">Yayıncı / Firma</label>
-                            <select asp-for="PublisherId" class="form-select bg-dark text-white border-secondary">
-                                <option value="">-- Yayıncı Seçiniz --</option>
-                                @if (ViewBag.Publishers != null)
-                                {
-                                    foreach (var pub in ViewBag.Publishers)
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PublisherId" class="form-label text-white required">Yayıncı / Stüdyo</label>
+                                <select asp-for="PublisherId" class="form-select bg-dark text-white border-secondary" required>
+                                    <option value="">-- Yayıncı Seçiniz --</option>
+                                    @if (ViewBag.Publishers != null)
                                     {
-                                        <option value="@pub.Id">@pub.Name</option>
+                                        foreach (var pub in ViewBag.Publishers)
+                                        {
+                                            <option value="@pub.Id">@pub.Name</option>
+                                        }
                                     }
-                                }
-                            </select>
-                            <span asp-validation-for="PublisherId" class="text-danger small"></span>
+                                </select>
+                                <span asp-validation-for="PublisherId" class="text-danger small"></span>
+                            </div>
                         </div>
-                    </div>
+                    }
+                    else if (isEpin)
+                    {
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="CategoryId" class="form-label text-white required">Kategori (Hangi Oyunun E-Pini?)</label>
+                                <select asp-for="CategoryId" class="form-select bg-dark text-white border-secondary" required>
+                                    <option value="">-- Oyun Seçiniz (Örn: League of Legends, Valorant, PUBG Mobile) --</option>
+                                    @if (ViewBag.Categories != null)
+                                    {
+                                        foreach (var cat in ViewBag.Categories)
+                                        {
+                                            <option value="@cat.Id">@cat.Name</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- 3. Satır: Görsel ve Stok -->
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label asp-for="ImageUrl" class="form-label text-white">Görsel URL</label>
@@ -88,12 +178,12 @@
                                 <span class="input-icon-addon">
                                     <i class="ti ti-photo"></i>
                                 </span>
-                                <input asp-for="ImageUrl" class="form-control bg-dark text-white border-secondary" placeholder="https://... (Oyun kapak afişi linki)" />
+                                <input asp-for="ImageUrl" class="form-control bg-dark text-white border-secondary" placeholder="https://... (Paket veya oyun logosu linki)" />
                             </div>
                             <span asp-validation-for="ImageUrl" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label asp-for="Stock" class="form-label text-white required">Başlangıç Stok</label>
+                            <label asp-for="Stock" class="form-label text-white required">Stok (Adet)</label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <i class="ti ti-box"></i>
@@ -103,16 +193,18 @@
                             <span asp-validation-for="Stock" class="text-danger small"></span>
                         </div>
                     </div>
+
+                    <!-- 4. Satır: Açıklama -->
                     <div class="mb-3">
-                        <label asp-for="Description" class="form-label text-white">Oyun Açıklaması & Detaylar</label>
-                        <textarea asp-for="Description" class="form-control bg-dark text-white border-secondary" rows="5" placeholder="Oyunun hikayesi, sistem gereksinimleri veya aktivasyon notları..."></textarea>
+                        <label asp-for="Description" class="form-label text-white">Açıklama & Detaylar</label>
+                        <textarea asp-for="Description" class="form-control bg-dark text-white border-secondary" rows="5" placeholder="@descPlaceholder"></textarea>
                         <span asp-validation-for="Description" class="text-danger small"></span>
                     </div>
                 </div>
                 <div class="card-footer border-secondary bg-transparent d-flex justify-content-between align-items-center">
-                    <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="ti ti-plus me-1"></i> Oyunu Ekle
+                    <a asp-action="Index" asp-route-type="@queryType" class="btn btn-outline-secondary">İptal</a>
+                    <button type="submit" class="btn @btnClass">
+                        <i class="ti ti-plus me-1"></i> Kaydet
                     </button>
                 </div>
             </form>

@@ -17,13 +17,22 @@ namespace DigitalSword.Persistence.Data
         public DbSet<Wallet> Wallets => Set<Wallet>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
-        public DbSet<MenuItem> MenuItems{get; set;}
+        public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<SupportTeamMember> SupportTeamMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasOne(c => c.ParentCategory)
+                      .WithMany(c => c.SubCategories)
+                      .HasForeignKey(c => c.ParentCategoryId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
             modelBuilder.Entity<Order>(builder =>
             {
                 builder.OwnsOne(o => o.TotalPrice);

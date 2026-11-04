@@ -1,0 +1,74 @@
+﻿@model DigitalSword.Application.DTOs.SupportTeamMemberDto
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Destek Personelini Düzenle";
+}
+
+<div class="page-header d-print-none mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="page-title text-white">
+                <i class="ti ti-user-edit text-warning me-2"></i> Destek Personelini Düzenle
+            </h2>
+            <div class="text-muted mt-1">Mevcut destek ekibi üyesinin bilgilerini güncelleyin.</div>
+        </div>
+        <div class="col-auto ms-auto">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="ti ti-arrow-left me-1"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-header border-secondary">
+                <h3 class="card-title text-white">Personel Bilgilerini Güncelle</h3>
+            </div>
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label text-white required">Ad Soyad</label>
+                        <input asp-for="Name" class="form-control bg-dark text-white border-secondary" required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label text-white required">Unvan / Rol</label>
+                        <input asp-for="Title" class="form-control bg-dark text-white border-secondary" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label text-white required">E-Posta Adresi</label>
+                        <input asp-for="Email" type="email" class="form-control bg-dark text-white border-secondary" required />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ImageUrl" class="form-label text-white">Profil Fotoğrafı (URL)</label>
+                        <input asp-for="ImageUrl" class="form-control bg-dark text-white border-secondary" />
+                        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="card-footer border-secondary bg-transparent d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">
+                        <i class="ti ti-check me-1"></i> Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

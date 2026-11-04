@@ -3,11 +3,12 @@ using DigitalSword.Application.DTOs;
 using DigitalSword.Domain.Entities;
 using DigitalSword.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalSword.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class ProductsController : ControllerBase
 {
     private readonly IGenericRepository<Product> _productRepository;
@@ -17,27 +18,32 @@ public class ProductsController : ControllerBase
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
+        
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] string? type = null, [FromQuery] string? category = null)
     {
         var products = await _productRepository.GetAllAsync();
-        var response = products.Select(p => new ProductResponseDto(
-            p.Id,
-            p.Title,
-            p.Description,
-            p.Price,
-            p.Stock,
-            p.ImageUrl,
-            p.ProductType,
-            p.CategoryId,
-            p.PublisherId,
-            p.IsActive,
-            p.CreatedAt
-        ));
+        if (!string.IsNullOrWhiteSpace(type))
+        {
+            if (type.Equals("Epin", StringComparison.OrdinalIgnoreCase))
+            {
+                products = products.Where(p => (int)p.ProductType == 2 || (int)p.ProductType == 3).ToList();
+            }
+            else if (type.Equals("Game", StringComparison.OrdinalIgnoreCase))
+            {
+                products = products.Where(p => (int)p.ProductType == 1 || (int)p.ProductType == 4).ToList();
+            }
+        }
+        if (!string.IsNullOrWhiteSpace(category) && !category.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            products = products.Where(p =>
+                (p.Category != null && p.Category.Name.Equals(category, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
 
-        return Ok(response);
+        return Ok(products);
     }
 
     [HttpGet("{id:int}")]
@@ -76,7 +82,7 @@ public class ProductsController : ControllerBase
             ImageUrl = dto.ImageUrl,
             ProductType = dto.ProductType,
             CategoryId = dto.CategoryId == 0 ? 4 : dto.CategoryId,
-            PublisherId = dto.PublisherId == 0 ? 5 : dto.PublisherId
+            PublisherId = dto.PublisherId == 0 ? 1 : dto.PublisherId
         };
 
         await _productRepository.AddAsync(product);
